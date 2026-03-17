@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I-Translation Medical Image Converter</title>
+    <title>I-Translation Dual Medical Image Converter</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .loader {
@@ -17,137 +17,224 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+<body class="bg-gray-100 min-h-screen font-sans text-gray-800">
 
-    <nav class="bg-blue-600 text-white shadow-lg p-4">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold tracking-tight">I-Translation</h1>
-            <span class="bg-blue-800 px-3 py-1 rounded-full text-xs font-semibold">v12.0 Engine Online</span>
+    <nav class="bg-blue-800 text-white shadow-md p-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tight">I-Translation Pro</h1>
+            <span class="bg-blue-600 px-3 py-1 rounded-full text-xs font-semibold">Dual CycleGAN Engine</span>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md border border-gray-100">
-        <h2 class="text-xl font-semibold mb-6 text-gray-700">Medical Image Translation (CycleGAN)</h2>
+    <main class="max-w-7xl mx-auto mt-10 p-4">
+        <h2 class="text-center text-gray-600 mb-8 font-medium">Upload a scan to the appropriate panel below to run the translation.</h2>
 
-        <form id="uploadForm" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Translation Direction</label>
-                <select id="conversionType" name="type" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
-                    <option value="ct_to_mri">CT Scan ➔ MRI</option>
-                    <option value="mri_to_ct">MRI ➔ CT Scan</option>
-                </select>
-            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 flex flex-col">
+                <h2 class="text-xl font-bold text-center text-blue-800 mb-6 border-b pb-2">CT Scan ➔ MRI Translation</h2>
+                
+                <div class="flex-grow flex flex-col items-center justify-center bg-gray-50 rounded-lg border border-gray-200 p-4 mb-4 min-h-[250px]">
+                    <div id="ct_uploadArea" class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-100 transition" onclick="document.getElementById('ct_input').click()">
+                        <span class="text-3xl mb-2">🦴</span>
+                        <p class="text-sm font-bold text-gray-700">Click to upload CT Scan</p>
+                        <input type="file" id="ct_input" accept="image/*" class="hidden">
+                    </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Images (Up to 4)</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="file" id="image1" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-200 rounded-lg p-2">
-                    <input type="file" id="image2" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-200 rounded-lg p-2">
-                    <input type="file" id="image3" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-200 rounded-lg p-2">
-                    <input type="file" id="image4" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-200 rounded-lg p-2">
+                    <div id="ct_previewArea" class="hidden w-full flex-col items-center">
+                        <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Original CT Scan</span>
+                        <img id="ct_preview" class="w-48 h-48 object-cover bg-black rounded-lg shadow-md mb-3">
+                        <button id="ct_removeBtn" class="text-red-600 hover:text-red-800 font-bold text-sm px-4 py-2 border border-red-200 hover:bg-red-50 rounded-full transition">
+                            ❌ Remove Image
+                        </button>
+                    </div>
+                </div>
+
+                <button id="ct_translateBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow transition mb-6 opacity-50 cursor-not-allowed" disabled>
+                    Run CT ➔ MRI Translation
+                </button>
+
+                <div class="flex-grow flex flex-col items-center justify-center bg-blue-50 rounded-lg border border-blue-100 p-4 min-h-[250px]">
+                    <div id="ct_placeholder" class="text-blue-300 flex flex-col items-center">
+                        <span class="text-4xl mb-2 opacity-50">🩻</span>
+                        <p class="text-sm font-medium">Awaiting CT translation...</p>
+                    </div>
+
+                    <div id="ct_loading" class="hidden flex-col items-center">
+                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-blue-200 h-12 w-12 mb-3"></div>
+                        <p class="text-sm font-bold text-blue-700">Generator G is processing...</p>
+                    </div>
+
+                    <div id="ct_resultArea" class="hidden w-full flex-col items-center">
+                        <span class="text-xs font-bold text-blue-700 mb-2 uppercase tracking-wider">Generated MRI</span>
+                        <img id="ct_resultImg" class="w-48 h-48 object-cover bg-black rounded-lg shadow-md mb-3 border-2 border-blue-400">
+                        <a id="ct_downloadBtn" href="#" download="translated_mri.png" class="text-white bg-green-600 hover:bg-green-700 font-bold text-sm px-5 py-2 rounded-full transition shadow">
+                            ⬇️ Download MRI
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 flex justify-center items-center">
-                <span>Translate Images</span>
-            </button>
-        </form>
+            <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-purple-500 flex flex-col">
+                <h2 class="text-xl font-bold text-center text-purple-800 mb-6 border-b pb-2">MRI ➔ CT Scan Translation</h2>
+                
+                <div class="flex-grow flex flex-col items-center justify-center bg-gray-50 rounded-lg border border-gray-200 p-4 mb-4 min-h-[250px]">
+                    <div id="mri_uploadArea" class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-100 transition" onclick="document.getElementById('mri_input').click()">
+                        <span class="text-3xl mb-2">🧠</span>
+                        <p class="text-sm font-bold text-gray-700">Click to upload MRI Scan</p>
+                        <input type="file" id="mri_input" accept="image/*" class="hidden">
+                    </div>
 
-        <div id="loading" class="hidden mt-8 flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-200 rounded-lg bg-gray-50">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-            <p class="text-gray-600 font-medium text-center">AI Models are processing your images...<br><span class="text-sm text-gray-400">This may take 10-20 seconds.</span></p>
+                    <div id="mri_previewArea" class="hidden w-full flex-col items-center">
+                        <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Original MRI Scan</span>
+                        <img id="mri_preview" class="w-48 h-48 object-cover bg-black rounded-lg shadow-md mb-3">
+                        <button id="mri_removeBtn" class="text-red-600 hover:text-red-800 font-bold text-sm px-4 py-2 border border-red-200 hover:bg-red-50 rounded-full transition">
+                            ❌ Remove Image
+                        </button>
+                    </div>
+                </div>
+
+                <button id="mri_translateBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg shadow transition mb-6 opacity-50 cursor-not-allowed" disabled>
+                    Run MRI ➔ CT Translation
+                </button>
+
+                <div class="flex-grow flex flex-col items-center justify-center bg-purple-50 rounded-lg border border-purple-100 p-4 min-h-[250px]">
+                    <div id="mri_placeholder" class="text-purple-300 flex flex-col items-center">
+                        <span class="text-4xl mb-2 opacity-50">🩻</span>
+                        <p class="text-sm font-medium">Awaiting MRI translation...</p>
+                    </div>
+
+                    <div id="mri_loading" class="hidden flex-col items-center">
+                        <div class="loader ease-linear rounded-full border-4 border-t-4 border-purple-200 h-12 w-12 mb-3"></div>
+                        <p class="text-sm font-bold text-purple-700">Generator F is processing...</p>
+                    </div>
+
+                    <div id="mri_resultArea" class="hidden w-full flex-col items-center">
+                        <span class="text-xs font-bold text-purple-700 mb-2 uppercase tracking-wider">Generated CT Scan</span>
+                        <img id="mri_resultImg" class="w-48 h-48 object-cover bg-black rounded-lg shadow-md mb-3 border-2 border-purple-400">
+                        <a id="mri_downloadBtn" href="#" download="translated_ct.png" class="text-white bg-green-600 hover:bg-green-700 font-bold text-sm px-5 py-2 rounded-full transition shadow">
+                            ⬇️ Download CT
+                        </a>
+                    </div>
+                </div>
+            </div>
+
         </div>
-
-        <div id="resultsContainer" class="hidden mt-10">
-            <h3 class="text-lg font-bold text-gray-800 border-b pb-2 mb-6">Translation Results</h3>
-            <div id="imageGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-        </div>
-
     </main>
 
     <script>
-        // Point this to your live Render backend
         const API_URL = "https://i-translation-backend.onrender.com/convert";
 
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Logic to handle both panels independently
+        function setupTranslationPanel(prefix, conversionType) {
+            const input = document.getElementById(`${prefix}_input`);
+            const uploadArea = document.getElementById(`${prefix}_uploadArea`);
+            const previewArea = document.getElementById(`${prefix}_previewArea`);
+            const previewImg = document.getElementById(`${prefix}_preview`);
+            const removeBtn = document.getElementById(`${prefix}_removeBtn`);
+            const translateBtn = document.getElementById(`${prefix}_translateBtn`);
             
-            const submitBtn = document.getElementById('submitBtn');
-            const loading = document.getElementById('loading');
-            const resultsContainer = document.getElementById('resultsContainer');
-            const imageGrid = document.getElementById('imageGrid');
-            
-            // Reset UI
-            imageGrid.innerHTML = '';
-            resultsContainer.classList.add('hidden');
-            loading.classList.remove('hidden');
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            const placeholder = document.getElementById(`${prefix}_placeholder`);
+            const loading = document.getElementById(`${prefix}_loading`);
+            const resultArea = document.getElementById(`${prefix}_resultArea`);
+            const resultImg = document.getElementById(`${prefix}_resultImg`);
+            const downloadBtn = document.getElementById(`${prefix}_downloadBtn`);
 
-            try {
-                // Build the payload
-                const formData = new FormData();
-                formData.append('type', document.getElementById('conversionType').value);
-                
-                let hasFiles = false;
-                for (let i = 1; i <= 4; i++) {
-                    const fileInput = document.getElementById(`image${i}`);
-                    if (fileInput.files.length > 0) {
-                        formData.append(`image${i}`, fileInput.files[0]);
-                        hasFiles = true;
-                    }
-                }
+            let currentFile = null;
 
-                if (!hasFiles) {
-                    alert("Please upload at least one image.");
-                    throw new Error("No files selected");
-                }
-
-                // Call your Render API
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Server Error: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                // Display Results
-                Object.keys(data).forEach(key => {
-                    if (!key.includes('error')) {
-                        const base64Img = data[key];
-                        const imgWrapper = document.createElement('div');
-                        imgWrapper.className = "bg-white p-3 rounded-lg shadow border border-gray-100 flex flex-col items-center";
+            // Handle file upload preview
+            input.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    currentFile = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        previewImg.src = event.target.result;
+                        uploadArea.classList.add('hidden');
+                        previewArea.classList.remove('hidden');
+                        previewArea.classList.add('flex');
                         
-                        // Parse name (e.g., 'image1_G' -> 'Image 1 (Gen G)')
-                        const formattedName = key.replace('image', 'Image ').replace('_', ' - Generator ');
+                        translateBtn.disabled = false;
+                        translateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    };
+                    reader.readAsDataURL(currentFile);
+                    resetResult();
+                }
+            });
 
-                        imgWrapper.innerHTML = `
-                            <span class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">${formattedName}</span>
-                            <img src="data:image/png;base64,${base64Img}" class="rounded-md w-full object-cover aspect-square bg-black shadow-sm" alt="${key}">
-                            <a href="data:image/png;base64,${base64Img}" download="${key}_translated.png" class="mt-3 text-sm text-blue-600 hover:text-blue-800 font-medium">Download</a>
-                        `;
-                        imageGrid.appendChild(imgWrapper);
-                    }
-                });
+            // Handle image removal
+            removeBtn.addEventListener('click', () => {
+                currentFile = null;
+                input.value = '';
+                previewArea.classList.add('hidden');
+                previewArea.classList.remove('flex');
+                uploadArea.classList.remove('hidden');
+                
+                translateBtn.disabled = true;
+                translateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                resetResult();
+            });
 
-                resultsContainer.classList.remove('hidden');
-
-            } catch (error) {
-                console.error("Translation Error:", error);
-                alert(error.message === "Failed to fetch" ? "Network error: Make sure the Render backend is fully awake and online." : error.message);
-            } finally {
-                // Restore UI
+            function resetResult() {
+                resultArea.classList.add('hidden');
+                resultArea.classList.remove('flex');
                 loading.classList.add('hidden');
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                loading.classList.remove('flex');
+                placeholder.classList.remove('hidden');
             }
-        });
+
+            // Trigger backend translation
+            translateBtn.addEventListener('click', async () => {
+                if (!currentFile) return;
+
+                placeholder.classList.add('hidden');
+                resultArea.classList.add('hidden');
+                loading.classList.remove('hidden');
+                loading.classList.add('flex');
+                
+                translateBtn.disabled = true;
+                const originalText = translateBtn.innerText;
+                translateBtn.innerText = "Processing in the Cloud...";
+
+                try {
+                    const formData = new FormData();
+                    formData.append('type', conversionType);
+                    formData.append('image', currentFile);
+
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.error || "Server Error");
+                    }
+
+                    const data = await response.json();
+                    
+                    // Show Output
+                    resultImg.src = "data:image/png;base64," + data.translated_image;
+                    downloadBtn.href = "data:image/png;base64," + data.translated_image;
+                    
+                    loading.classList.add('hidden');
+                    loading.classList.remove('flex');
+                    resultArea.classList.remove('hidden');
+                    resultArea.classList.add('flex');
+
+                } catch (error) {
+                    alert(`[${conversionType}] Translation Error: ` + error.message);
+                    resetResult();
+                } finally {
+                    translateBtn.disabled = false;
+                    translateBtn.innerText = originalText;
+                }
+            });
+        }
+
+        // Initialize both translation panels
+        setupTranslationPanel('ct', 'ct_to_mri');
+        setupTranslationPanel('mri', 'mri_to_ct');
+
     </script>
 </body>
 </html>
