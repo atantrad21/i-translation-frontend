@@ -38,7 +38,7 @@
                     <div id="ct_uploadArea" class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-100 transition" onclick="document.getElementById('ct_input').click()">
                         <span class="text-3xl mb-2">🦴</span>
                         <p class="text-sm font-bold text-gray-700">Click to upload CT Scan</p>
-                        <input type="file" id="ct_input" accept="image/*" class="hidden">
+                        <<input type="file" id="ct_input" accept="image/*,.dcm" class="hidden">
                     </div>
 
                     <div id="ct_previewArea" class="hidden w-full flex-col items-center">
@@ -82,7 +82,7 @@
                     <div id="mri_uploadArea" class="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-100 transition" onclick="document.getElementById('mri_input').click()">
                         <span class="text-3xl mb-2">🧠</span>
                         <p class="text-sm font-bold text-gray-700">Click to upload MRI Scan</p>
-                        <input type="file" id="mri_input" accept="image/*" class="hidden">
+                        <input type="file" id="mri_input" accept="image/*,.dcm" class="hidden">
                     </div>
 
                     <div id="mri_previewArea" class="hidden w-full flex-col items-center">
@@ -143,21 +143,37 @@
             let currentFile = null;
 
             // Handle file upload preview
+           // Handle file upload preview
             input.addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
                     currentFile = e.target.files[0];
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        previewImg.src = event.target.result;
+                    
+                    // Check if it is a DICOM file
+                    if (currentFile.name.toLowerCase().endsWith('.dcm')) {
+                        // Browsers can't preview DICOMs, so we use a placeholder image
+                        previewImg.src = "https://placehold.co/400x400/e2e8f0/475569?text=DICOM+File+Loaded";
                         uploadArea.classList.add('hidden');
                         previewArea.classList.remove('hidden');
                         previewArea.classList.add('flex');
                         
                         translateBtn.disabled = false;
                         translateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    };
-                    reader.readAsDataURL(currentFile);
-                    resetResult();
+                        resetResult();
+                    } else {
+                        // Standard Image Preview
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            previewImg.src = event.target.result;
+                            uploadArea.classList.add('hidden');
+                            previewArea.classList.remove('hidden');
+                            previewArea.classList.add('flex');
+                            
+                            translateBtn.disabled = false;
+                            translateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        };
+                        reader.readAsDataURL(currentFile);
+                        resetResult();
+                    }
                 }
             });
 
